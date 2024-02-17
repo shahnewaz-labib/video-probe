@@ -9,6 +9,7 @@ export default function Home() {
 
     const onFileSubmit = async (file: File) => {
         if (!file) return
+        setIsFileUploaded(true)
 
         try {
             const data = new FormData()
@@ -22,8 +23,8 @@ export default function Home() {
             setIsLoading(false)
 
             if (!res.ok) throw new Error(await res.text())
-            setIsFileUploaded(true)
         } catch (e: any) {
+            setIsFileUploaded(false)
             console.error(e)
         }
     }

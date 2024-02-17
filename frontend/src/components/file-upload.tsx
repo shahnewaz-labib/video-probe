@@ -25,7 +25,7 @@ export default function FileUpload(props: IProps) {
                 allowMultiple={false}
                 dragAcceptText="drop"
                 dragRejectText="file type not supported"
-                instructionText="upload mp4/mkv file"
+                instructionText={file ? file.name : "upload mp4/mkv file"}
                 instructionSubtext=""
                 onDrop={(files) => {
                     setFile(files[0])
