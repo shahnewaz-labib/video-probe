@@ -29,11 +29,11 @@ async function uploadToServer(file: File) {
         if (response.ok) {
             console.log(
                 "File uploaded successfully to external server:",
-                responseJson.message,
+                responseJson.description,
             )
             return NextResponse.json({
                 success: true,
-                message: responseJson.message,
+                message: responseJson.description,
             })
         } else {
             console.error(

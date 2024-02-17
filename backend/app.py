@@ -5,7 +5,7 @@ import os
 from os.path import join, dirname
 from dotenv import load_dotenv
 
-from video.video_processing import process, get_key
+from video.video_processing import process
 
 
 load_dotenv('.env', override=True)
@@ -28,7 +28,8 @@ def video_query():
 	
 	print(f.filename + " uploaded successfully")
 	# Process the video
-	descs = process(f.filename)
+	descs = " ".join(process(f.filename))
+	print(descs)
 	return jsonify({"description": descs}), 200
 
 if __name__ == '__main__':
