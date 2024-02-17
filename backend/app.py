@@ -55,6 +55,8 @@ def video_query():
 @app.route('/query/audio', methods=['POST'])
 @require_api_key
 def audio_query():
+    if not os.path.exists('temp'):
+        os.mkdir('temp')
     try:
         f = request.files['file']
         f.save('temp/'+f.filename)
@@ -65,7 +67,7 @@ def audio_query():
     print(f.filename + " uploaded successfully")
     # Process the video
     messages = get_video_summary('temp/' + f.filename)
-
+    os.rmdir('temp')
     return jsonify({"messages": messages}), 200
 
 if __name__ == '__main__':
