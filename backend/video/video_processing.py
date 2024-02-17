@@ -82,11 +82,11 @@ def delete_video(video_path):
 
 def process(video_path):
 	frames = get_video_frames(video_path)
+	delete_video(video_path)
 	chunks = get_chunks(frames)
 	descs = []
 	for chunk in chunks:
 		desc = get_video_chunk_description(chunk)
 		descs.append(desc)
-		time.sleep(0.025)
 	return descs
 
