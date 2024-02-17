@@ -48,7 +48,7 @@ def get_video_chunk_description(chunk):
 		"max_tokens": 200,
 	}
 	result = client.chat.completions.create(**params)
-	desc = result.choices[0].message.content.split("\"")[1]
+	desc = result.choices[0].message.content
 	return desc
 
 def get_combined_video_description(descs):
@@ -82,11 +82,11 @@ def delete_video(video_path):
 
 def process(video_path):
 	frames = get_video_frames(video_path)
-	delete_video(video_path)
 	chunks = get_chunks(frames)
 	descs = []
 	for chunk in chunks:
 		desc = get_video_chunk_description(chunk)
 		descs.append(desc)
+		time.sleep(0.025)
 	return descs
 
