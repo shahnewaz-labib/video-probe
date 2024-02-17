@@ -51,6 +51,27 @@ def get_video_chunk_description(chunk):
 	desc = result.choices[0].message.content.split("\"")[1]
 	return desc
 
+def get_combined_video_description(descs):
+	PROMPT_MESSAGES = [
+		{
+			"role": "user",
+			"content": [
+				"These are descriptions of the video chunks of a full video.",
+				*map(lambda x: {"text": x}, descs),
+				"Create an overall summary of the video using these descriptions.",
+				"\"<summary of the video>\""
+			],
+		},
+	]
+	params = {
+		"model": "gpt-4-vision-preview",
+		"messages": PROMPT_MESSAGES,
+		"max_tokens": 200,
+	}
+	result = client.chat.completions.create(**params)
+	desc = result.choices[0].message.content.split("\"")[1]
+	return desc
+
 def delete_video(video_path):
 	if os.path.exists(video_path):
 		# Delete the file
