@@ -1,11 +1,12 @@
+import { AppContextProvider } from "@/components/app-context"
+import { NavBar } from "@/components/navbar"
+import { SideBar } from "@/components/sidebar"
+import { ThemeProvider } from "@/components/theme-provider"
+import { ClerkProvider } from "@clerk/nextjs"
+import { dark } from "@clerk/themes"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { NavBar } from "@/components/navbar"
-import { ClerkProvider } from "@clerk/nextjs"
-import { dark } from "@clerk/themes"
-import { SideBar } from "@/components/sidebar"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,13 +34,15 @@ export default async function RootLayout({
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <div className="grid-cols-10 md:grid">
-                            <SideBar className="col-span-2 h-screen bg-accent/50" />
-                            <div className="col-span-8 px-8">
-                                <NavBar />
-                                <div className="w-full">{children}</div>
+                        <AppContextProvider>
+                            <div className="grid-cols-10 md:grid">
+                                <SideBar className="col-span-2 h-screen bg-accent/50" />
+                                <div className="col-span-8 px-8">
+                                    <NavBar />
+                                    <div className="w-full">{children}</div>
+                                </div>
                             </div>
-                        </div>
+                        </AppContextProvider>
                     </ThemeProvider>
                 </body>
             </html>

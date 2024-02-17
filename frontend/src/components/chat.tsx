@@ -4,12 +4,14 @@ import { getChat } from "@/actions/chat"
 import { complete } from "@/actions/completion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useContext, useEffect, useState } from "react"
+import { AppContext } from "./app-context"
 
 export default function ChatComponent({ chatId }: { chatId: string }) {
     const [isLoading, setIsLoading] = useState(false)
     const [prompt, setPrompt] = useState("")
     const [messages, setMessages] = useState<any>()
+    const { mode } = useContext(AppContext)
 
     useEffect(() => {
         getChat(chatId).then((chat) => {
