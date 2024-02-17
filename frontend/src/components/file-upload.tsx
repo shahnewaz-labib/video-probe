@@ -10,27 +10,12 @@ const allowedFileTypes = {
     "video/x-matroska": [".mkv"],
 }
 
-export default function FileUpload({
-    ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-    const [file, setFile] = useState<File>()
+interface IProps extends React.HTMLAttributes<HTMLDivElement> {
+    onFileSubmit: (file: File) => void
+}
 
-    const onSubmit = async () => {
-        if (!file) return
-
-        try {
-            const data = new FormData()
-            data.set("file", file)
-
-            const res = await fetch("/api/upload", {
-                method: "POST",
-                body: data,
-            })
-            if (!res.ok) throw new Error(await res.text())
-        } catch (e: any) {
-            console.error(e)
-        }
-    }
+export default function FileUpload(props: IProps) {
+    const [file, setFile] = useState<File | undefined>()
 
     return (
         <div {...props}>
@@ -47,9 +32,14 @@ export default function FileUpload({
                 }}
                 uploadIcon={<Upload />}
             />
-            <Button className="w-full" onClick={onSubmit}>
-                Upload
-            </Button>
+            {file && (
+                <Button
+                    className="w-full"
+                    onClick={() => props.onFileSubmit(file)}
+                >
+                    Upload
+                </Button>
+            )}
         </div>
     )
 }
