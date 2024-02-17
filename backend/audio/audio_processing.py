@@ -23,7 +23,7 @@ def convert_mp4_to_mp3(mp4_file_path, mp3_file_path):
 output_folder = "chunks"
 num_chunks = -1
 
-def chunk_file_by_size(file_name, chunk_size_bytes = 20 * 1024 * 1024):
+def chunk_file_by_size(file_name, chunk_size_bytes = 10 * 1024 * 1024):
     os.makedirs(output_folder, exist_ok=True)
     
     with open(file_name, 'rb') as file:
