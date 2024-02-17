@@ -4,7 +4,7 @@ from fileinput import filename
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
-
+from functools import wraps
 from video.video_processing import process
 
 
@@ -13,11 +13,31 @@ load_dotenv('.env', override=True)
 app = Flask(__name__)
 app.secret_key = os.environ.get('APP_SECRET_KEY')
 
+API_KEY=os.environ.get("API_KEY")
+
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check if 'x-api-key' is present in headers
+        if 'x-api-key' in request.headers:
+            # Validate the API key
+            if request.headers['x-api-key'] == API_KEY:
+                return f(*args, **kwargs)
+            else:
+                return jsonify({'message': 'Invalid API key'}), 403
+        else:
+            return jsonify({'message': 'API key is missing'}), 401
+    return decorated_function
+
+
+
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({"message": "Hello, World!"}), 200
 
+
 @app.route('/query/video', methods=['POST'])
+@require_api_key
 def video_query():
 	try :
 		f = request.files['file'] 

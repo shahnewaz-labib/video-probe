@@ -1,6 +1,6 @@
 import { Env } from "@/config/env"
 
-export async function POST(request) {
+export async function POST(request: Request) {
     const data = await request.formData()
     const file: File | null = data.get("file") as unknown as File
 
@@ -15,24 +15,19 @@ export async function POST(request) {
         const response = await fetch(`${Env.backendUrl}/query/video`, {
             method: "POST",
             body: formData,
+            headers: {
+                "x-api-key": Env.backendApiKey,
+            },
         })
 
         const responseJson = await response.json()
 
         if (response.ok) {
-            console.log(
-                "File uploaded successfully to external server:",
-                responseJson.description,
-            )
             return Response.json({
                 success: true,
                 message: responseJson.description,
             })
         } else {
-            console.error(
-                "Failed to upload file to external server:",
-                responseJson.message,
-            )
             return Response.json({
                 success: false,
                 message: responseJson.message,
