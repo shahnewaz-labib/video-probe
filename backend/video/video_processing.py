@@ -37,8 +37,7 @@ def get_video_chunk_description(chunk):
 			"content": [
 				"These are frames from a video that I want to upload.",
 				*map(lambda x: {"image": x, "resize": 768}, chunk[::20]),
-				"Give a detailed description of the video.",
-				"\"<searchable description of the video>\""
+				"Give a detailed description of this video."
 			],
 		},
 	]
@@ -48,10 +47,7 @@ def get_video_chunk_description(chunk):
 		"max_tokens": 200,
 	}
 	result = client.chat.completions.create(**params)
-	if len(result.choices[0].message.content.split('"')) >=2:
-		desc = result.choices[0].message.content.split("\"")[1]
-	else:
-		desc = result.choices[0].message.content
+	desc = result.choices[0].message.content
 	return desc
 
 def get_combined_video_description(descs):
@@ -60,7 +56,6 @@ def get_combined_video_description(descs):
 			"role": "user",
 			"content": [
 				"Summarize the following texts into a single paragraph. \n" + "\n".join(descs),
-				"\"<summary of the video>\""
 			],
 		},
 	]
@@ -70,11 +65,35 @@ def get_combined_video_description(descs):
 		"max_tokens": 200,
 	}
 	result = client.chat.completions.create(**params)
-	if len(result.choices[0].message.content.split('"')) >=2:
-		desc = result.choices[0].message.content.split("\"")[1]
-	else:
-		desc = result.choices[0].message.content
+	desc = result.choices[0].message.content
 	return desc
+
+def get_video_description(frames):
+	PROMPT_MESSAGES = [
+		{
+        "role": "system",
+        "content": "You are a video question answering assistant."
+    },
+		{
+			"role": "user",
+			"content": [
+				"These are frames from a video that I want to upload.",
+				*map(lambda x: {"image": x, "resize": 768}, frames[::20]),
+				"Give a detailed description of this video."
+			],
+		},
+	]
+	params = {
+		"model": "gpt-4-vision-preview",
+		"messages": PROMPT_MESSAGES,
+		"max_tokens": 200,
+	}
+	result = client.chat.completions.create(**params)
+	PROMPT_MESSAGES.append({
+			"role" : "assistant",
+			"content": result.choices[0].message.content
+	})
+	return PROMPT_MESSAGES
 
 def delete_video(video_path):
 	if os.path.exists(video_path):
@@ -86,11 +105,14 @@ def delete_video(video_path):
 
 def process(video_path):
 	frames = get_video_frames(video_path)
-	delete_video(video_path)
-	chunks = get_chunks(frames)
-	descs = []
-	for chunk in chunks:
-		desc = get_video_chunk_description(chunk)
-		descs.append(desc)
-	return descs
+	
+	# chunks = get_chunks(frames)
+	# descs = []
+	# for chunk in chunks:
+	# 	desc = get_video_chunk_description(chunk)
+	# 	descs.append(desc)
+	# combined_desc = get_combined_video_description(descs)
+	# return combined_desc
+
+	return get_video_description(frames)
 

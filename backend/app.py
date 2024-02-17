@@ -49,9 +49,8 @@ def video_query():
 	
 	print(f.filename + " uploaded successfully")
 	# Process the video
-	descs = " ".join(process(f.filename))
-	print(descs)
-	return jsonify({"description": descs}), 200
+	messages = process(f.filename)
+	return jsonify({"messages": messages}), 200
 
 @app.route('/query/audio', methods=['POST'])
 @require_api_key

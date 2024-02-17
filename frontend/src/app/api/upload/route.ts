@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     formData.append("file", file)
 
     try {
-        const response = await fetch(`${Env.backendUrl}/query/audio`, {
+        const response = await fetch(`${Env.backendUrl}/query/video`, {
             method: "POST",
             body: formData,
             headers: {
