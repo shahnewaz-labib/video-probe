@@ -1,20 +1,13 @@
 import { Env } from "@/config/env"
-import { NextRequest, NextResponse } from "next/server"
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
     const data = await request.formData()
     const file: File | null = data.get("file") as unknown as File
 
     if (!file) {
-        return NextResponse.json({ success: false })
+        return Response.json({ success: false })
     }
 
-    await uploadToServer(file)
-
-    return NextResponse.json({ success: true })
-}
-
-async function uploadToServer(file: File) {
     const formData = new FormData()
     formData.append("file", file)
 
@@ -31,7 +24,7 @@ async function uploadToServer(file: File) {
                 "File uploaded successfully to external server:",
                 responseJson.description,
             )
-            return NextResponse.json({
+            return Response.json({
                 success: true,
                 message: responseJson.description,
             })
@@ -40,14 +33,14 @@ async function uploadToServer(file: File) {
                 "Failed to upload file to external server:",
                 responseJson.message,
             )
-            return NextResponse.json({
+            return Response.json({
                 success: false,
                 message: responseJson.message,
             })
         }
     } catch (error) {
         console.error("Error in file upload to external server:", error)
-        return NextResponse.json({
+        return Response.json({
             success: false,
             message: "Error in file upload to external server",
         })
