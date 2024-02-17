@@ -79,11 +79,20 @@ def get_video_summary(file_path):
     convert_mp4_to_mp3(file_path, mp3_file_path)
     num_chunks = chunk_file_by_size(mp3_file_path)
     transcriptions = get_transcription(mp3_file_path, num_chunks)
+
+    messages=[
+        {"role": "system", "content": "You are a helpful text summarizer assistant."},
+        {"role": "user", "content": "Summarize this in about 30 lines: " + transcriptions[0].text}
+    ]
+
     response = client.chat.completions.create(
 		model="gpt-3.5-turbo-0125",
-		messages=[
-			{"role": "system", "content": "You are a helpful text summarizer assistant."},
-			{"role": "user", "content": "Summarize this in about 30 lines: " + transcriptions[0].text}
-		]
+        messages=messages
 	)
-    return response.choices[0].message.content, transcriptions[0].text
+
+    messages.append({
+        "role" : "assistant",
+        "content": response.choices[0].message.content
+    })
+
+    return messages

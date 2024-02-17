@@ -16,28 +16,26 @@ export async function POST(request: Request) {
             method: "POST",
             body: formData,
             headers: {
-                "x-api-key": Env.backendApiKey,
-            },
+                "x-api-key": Env.backendApiKey
+            }
         })
 
         const responseJson = await response.json()
+        console.log("response", responseJson)
 
         if (response.ok) {
             return Response.json({
                 success: true,
-                message: responseJson.description,
+                messages: responseJson.messages
             })
         } else {
             return Response.json({
-                success: false,
-                message: responseJson.message,
+                success: false
             })
         }
     } catch (error) {
-        console.error("Error in file upload to external server:", error)
         return Response.json({
-            success: false,
-            message: "Error in file upload to external server",
+            success: false
         })
     }
 }
