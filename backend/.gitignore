@@ -1,3 +1,7 @@
 .env
 */__pycache__/
 demo-videos/*
+bin
+lib
+lib64
+pyvenv.cfg
