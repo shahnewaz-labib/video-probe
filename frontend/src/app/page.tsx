@@ -20,7 +20,7 @@ export default function Home() {
             data.set("file", file)
 
             setIsLoading(true)
-            let res = await fetch("/api/upload", {
+            let res: any = await fetch("/api/upload", {
                 method: "POST",
                 body: data,
             })
@@ -37,8 +37,10 @@ export default function Home() {
         }
     }
 
-    const onPrompt = async (e: FormEvent<HTMLInputElement>) => {
+    const onPrompt = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        console.log("Sending prompt", prompt)
+        setPrompt("")
     }
 
     return (
@@ -60,7 +62,10 @@ export default function Home() {
                 </div>
             )}
             <form onSubmit={onPrompt} className="flex gap-4">
-                <Input />
+                <Input
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.currentTarget.value)}
+                />
                 <Button type="submit" disabled={isLoading}>
                     Send
                 </Button>
