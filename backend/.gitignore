@@ -5,3 +5,7 @@ bin
 lib
 lib64
 pyvenv.cfg
+temp/
+*.mp4
+*.mp3
+*.mkv 

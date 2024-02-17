@@ -6,6 +6,7 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from functools import wraps
 from video.video_processing import process
+from audio.audio_processing import get_video_summary
 
 
 load_dotenv('.env', override=True)
@@ -51,6 +52,22 @@ def video_query():
 	descs = " ".join(process(f.filename))
 	print(descs)
 	return jsonify({"description": descs}), 200
+
+@app.route('/query/audio', methods=['POST'])
+@require_api_key
+def audio_query():
+    try:
+        f = request.files['file']
+        f.save('temp/'+f.filename)
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error in file upload"}), 500
+    
+    print(f.filename + " uploaded successfully")
+    # Process the video
+    summary, transcript = get_video_summary('temp/' + f.filename)
+
+    return jsonify({"description": summary, "transcript": transcript}), 200
 
 if __name__ == '__main__':
 	app.run(debug=True, host='localhost', port=8001)
