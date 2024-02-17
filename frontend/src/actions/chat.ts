@@ -1,18 +1,23 @@
 "use server"
 
+import { modelType } from "@/components/app-context"
 import { prismaClient } from "@/config/prisma"
 import { auth } from "@clerk/nextjs"
 import { Chat } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
-export const createChat = async (messages: any): Promise<Chat | false> => {
+export const createChat = async (
+    messages: any,
+    model: modelType
+): Promise<Chat | false> => {
     const { userId } = auth()
     if (!userId) return false
 
     const chat = await prismaClient.chat.create({
         data: {
             userId,
-            messages: messages
+            model,
+            messages
         }
     })
 
@@ -22,10 +27,12 @@ export const createChat = async (messages: any): Promise<Chat | false> => {
 }
 
 export const updateChatHistory = async (chatId: string, messages: any) => {
+    const chat = await prismaClient.chat.findUnique({ where: { id: chatId } })
+    if (!chat) return
     await prismaClient.chat.update({
         where: { id: chatId },
         data: {
-            messages: messages
+            messages: [...chat.messages, ...messages]
         }
     })
 }

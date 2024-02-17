@@ -1,13 +1,15 @@
 "use client"
 
 import { createChat } from "@/actions/chat"
+import { AppContext } from "@/components/app-context"
 import ChatComponent from "@/components/chat"
 import FileUpload from "@/components/file-upload"
-import { useState } from "react"
+import { useContext, useState } from "react"
 
 export default function Home() {
     const [chatId, setChatId] = useState<string | false>(false)
     const [isLoading, setIsLoading] = useState(false)
+    const { selectedModel } = useContext(AppContext)
 
     const onFileSubmit = async (file: File) => {
         if (!file) return
@@ -18,7 +20,7 @@ export default function Home() {
 
             setIsLoading(true)
 
-            let res: any = await fetch("/api/upload", {
+            let res: any = await fetch(`/api/upload?model=${selectedModel}`, {
                 method: "POST",
                 body: data
             })
@@ -26,8 +28,9 @@ export default function Home() {
             if (!res.ok) throw new Error(await res.text())
 
             res = await res.json()
+            const chat = res.chat
+            console.log("res got", res)
 
-            const chat = await createChat(res.messages)
             if (chat) {
                 setChatId(chat.id)
             }

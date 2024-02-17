@@ -55,19 +55,16 @@ def video_query():
 @app.route('/query/audio', methods=['POST'])
 @require_api_key
 def audio_query():
-    if not os.path.exists('temp'):
-        os.mkdir('temp')
     try:
         f = request.files['file']
-        f.save('temp/'+f.filename)
+        f.save('/tmp/'+f.filename)
     except Exception as e:
         print(e)
         return jsonify({"message": "Error in file upload"}), 500
     
     print(f.filename + " uploaded successfully")
     # Process the video
-    messages = get_video_summary('temp/' + f.filename)
-    os.rmdir('temp')
+    messages = get_video_summary('/tmp/' + f.filename)
     return jsonify({"messages": messages}), 200
 
 if __name__ == '__main__':

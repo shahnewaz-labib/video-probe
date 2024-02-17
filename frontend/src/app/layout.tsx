@@ -1,4 +1,3 @@
-import { AppContextProvider } from "@/components/app-context"
 import { NavBar } from "@/components/navbar"
 import { SideBar } from "@/components/sidebar"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -7,6 +6,7 @@ import { dark } from "@clerk/themes"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { AppContextProvider } from "@/components/app-context"
 
 const inter = Inter({ subsets: ["latin"] })
 

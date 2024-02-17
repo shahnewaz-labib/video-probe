@@ -1,3 +1,4 @@
+import { updateChatHistory, updateChatName } from "@/actions/chat"
 import { Env } from "@/config/env"
 import OpenAI from "openai"
 
@@ -5,19 +6,23 @@ const openai = new OpenAI({ apiKey: Env.openaiKey })
 
 export async function POST(req: Request) {
     const data = await req.json()
-    const formData = await req.formData()
-    const messages = data.messages
-    console.log("dataaaaa", data)
+    const { chatId, messages, model } = data
 
     const completion = await openai.chat.completions.create({
         messages,
-        model: "gpt-3.5-turbo"
+        model
     })
 
     messages.push({
         role: "assistant",
         content: completion.choices[0].message.content
     })
+
+    await updateChatHistory(chatId, messages.slice(-2))
+
+    if (messages.length === 5) {
+        await updateChatName(chatId, messages[3].content.slice(0, 10))
+    }
 
     return Response.json(messages)
 }

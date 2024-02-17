@@ -11,6 +11,7 @@ datasource db {
 model Chat {
     id       String @id @default(uuid())
     name     String @default("New Chat")
+    model    String @default("gpt-3.5-turbo")
     userId   String
     messages Json[]
 }

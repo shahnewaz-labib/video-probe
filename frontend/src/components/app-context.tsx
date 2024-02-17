@@ -8,20 +8,23 @@ import {
     useState
 } from "react"
 
-interface IAppContext {
-    mode: "transcript-based" | "frame-based"
-    setMode: Dispatch<SetStateAction<"transcript-based" | "frame-based">>
-}
+export type modelType = "gpt-3.5-turbo" | "gpt-4-vision-preview"
 
+interface IAppContext {
+    selectedModel: modelType | undefined
+    setSelectedModel: Dispatch<SetStateAction<modelType | undefined>>
+}
 export const AppContext = createContext<IAppContext>({} as IAppContext)
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
-    const [mode, setMode] = useState<IAppContext["mode"]>("transcript-based")
+    const [selectedModel, setSelectedModel] =
+        useState<modelType>("gpt-3.5-turbo")
     return (
         <AppContext.Provider
             value={{
-                mode,
-                setMode
+                selectedModel,
+                //@ts-ignore
+                setSelectedModel
             }}
         >
             {children}

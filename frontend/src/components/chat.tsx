@@ -4,18 +4,22 @@ import { getChat } from "@/actions/chat"
 import { complete } from "@/actions/completion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FormEvent, useContext, useEffect, useState } from "react"
-import { AppContext } from "./app-context"
+import { FormEvent, useEffect, useState } from "react"
+import { modelType } from "./app-context"
 
 export default function ChatComponent({ chatId }: { chatId: string }) {
     const [isLoading, setIsLoading] = useState(false)
     const [prompt, setPrompt] = useState("")
     const [messages, setMessages] = useState<any>()
-    const { mode } = useContext(AppContext)
+    const [model, setModel] = useState<modelType>()
 
     useEffect(() => {
         getChat(chatId).then((chat) => {
-            if (chat) setMessages(chat.messages)
+            if (chat) {
+                setMessages(chat.messages)
+                //@ts-ignore
+                setModel(chat.model)
+            }
         })
     }, [])
 
@@ -30,7 +34,15 @@ export default function ChatComponent({ chatId }: { chatId: string }) {
         setMessages([...messages, promptEntry])
         messages.push(promptEntry)
         setIsLoading(true)
-        const data = await complete(chatId, messages)
+        let data = await fetch("/api/completion", {
+            method: "POST",
+            body: JSON.stringify({
+                chatId,
+                messages,
+                model
+            })
+        })
+        data = await data.json()
         setMessages(data)
         setIsLoading(false)
     }

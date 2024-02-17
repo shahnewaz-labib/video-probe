@@ -75,7 +75,7 @@ def get_transcription(file_path, num_chunks):
 # )
 # print(response.choices[0].message.content)
 def get_video_summary(file_path):
-    mp3_file_path = os.path.join(os.getcwd(), "temp", f"{os.path.splitext(os.path.basename(file_path))[0]}.mp3")
+    mp3_file_path = os.path.join("/tmp", f"{os.path.splitext(os.path.basename(file_path))[0]}.mp3")
     convert_mp4_to_mp3(file_path, mp3_file_path)
     num_chunks = chunk_file_by_size(mp3_file_path)
     transcriptions = get_transcription(mp3_file_path, num_chunks)
