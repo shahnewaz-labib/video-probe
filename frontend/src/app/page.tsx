@@ -5,6 +5,7 @@ import { useState } from "react"
 
 export default function Home() {
     const [isFileUploaded, setIsFileUploaded] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const onFileSubmit = async (file: File) => {
         if (!file) return
@@ -13,10 +14,13 @@ export default function Home() {
             const data = new FormData()
             data.set("file", file)
 
+            setIsLoading(true)
             const res = await fetch("/api/upload", {
                 method: "POST",
                 body: data,
             })
+            setIsLoading(false)
+
             if (!res.ok) throw new Error(await res.text())
             setIsFileUploaded(true)
         } catch (e: any) {
@@ -35,7 +39,11 @@ export default function Home() {
                 </div>
             ) : (
                 <div>
-                    <p>summary</p>
+                    {isLoading ? (
+                        <p className="animate-pulse">Generating Response</p>
+                    ) : (
+                        <p>summary</p>
+                    )}
                 </div>
             )}
         </div>

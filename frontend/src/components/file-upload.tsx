@@ -32,14 +32,13 @@ export default function FileUpload(props: IProps) {
                 }}
                 uploadIcon={<Upload />}
             />
-            {file && (
-                <Button
-                    className="w-full"
-                    onClick={() => props.onFileSubmit(file)}
-                >
-                    Upload
-                </Button>
-            )}
+            <Button
+                disabled={!file}
+                className="w-full"
+                onClick={() => props.onFileSubmit(file!)}
+            >
+                Upload
+            </Button>
         </div>
     )
 }
