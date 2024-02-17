@@ -65,9 +65,9 @@ def audio_query():
     
     print(f.filename + " uploaded successfully")
     # Process the video
-    summary, transcript = get_video_summary('temp/' + f.filename)
+    messages = get_video_summary('temp/' + f.filename)
 
-    return jsonify({"description": summary, "transcript": transcript}), 200
+    return jsonify({"messages": messages}), 200
 
 if __name__ == '__main__':
 	app.run(debug=True, host='localhost', port=8001)
