@@ -1,12 +1,15 @@
 "use client"
 
 import FileUpload from "@/components/file-upload"
-import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { FormEvent, useState } from "react"
 
 export default function Home() {
     const [isFileUploaded, setIsFileUploaded] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [response, setResponse] = useState("")
+    const [prompt, setPrompt] = useState("")
 
     const onFileSubmit = async (file: File) => {
         if (!file) return
@@ -34,8 +37,12 @@ export default function Home() {
         }
     }
 
+    const onPrompt = async (e: FormEvent<HTMLInputElement>) => {
+        e.preventDefault()
+    }
+
     return (
-        <div className="px-32 py-8">
+        <div className="px-32 py-8 flex flex-col gap-y-8">
             {!isFileUploaded ? (
                 <div>
                     <FileUpload
@@ -52,6 +59,12 @@ export default function Home() {
                     )}
                 </div>
             )}
+            <form onSubmit={onPrompt} className="flex gap-4">
+                <Input />
+                <Button type="submit" disabled={isLoading}>
+                    Send
+                </Button>
+            </form>
         </div>
     )
 }
