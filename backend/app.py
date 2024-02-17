@@ -5,12 +5,13 @@ import os
 from os.path import join, dirname
 from dotenv import load_dotenv
 
-load_dotenv()
+from video.video_processing import process, get_key
+
+
+load_dotenv('.env', override=True)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('APP_SECRET_KEY')
-
-PORT = int(os.environ.get('PORT', 4567))
 
 @app.route('/', methods=['GET'])
 def index():
@@ -26,7 +27,9 @@ def video_query():
 		return jsonify({"message": "Error in file upload"}), 500
 	
 	print(f.filename + " uploaded successfully")
-	return jsonify({"message": "File uploaded successfully"}), 200
+	# Process the video
+	descs = process(f.filename)
+	return jsonify({"description": descs}), 200
 
 if __name__ == '__main__':
 	app.run(debug=True, host='localhost', port=8001)
