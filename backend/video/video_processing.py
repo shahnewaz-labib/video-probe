@@ -25,7 +25,7 @@ def get_video_frames(video_path):
 	print(len(base64Frames), "frames read.")
 	return base64Frames
 
-def get_chunks(base64Frames, chunkSize=100):
+def get_chunks(base64Frames, chunkSize=500):
 	chunks = [base64Frames[i:i + chunkSize] for i in range(0, len(base64Frames), chunkSize)]
 	print(len(chunks), "chunks created.")
 	return chunks    
@@ -37,7 +37,7 @@ def get_video_chunk_description(chunk):
 			"content": [
 				"These are frames from a video that I want to upload.",
 				*map(lambda x: {"image": x, "resize": 768}, chunk[::20]),
-				"Create a description for this video so that the description can be used to search for the video.",
+				"Give a detailed description of the video.",
 				"\"<searchable description of the video>\""
 			],
 		},
@@ -48,7 +48,10 @@ def get_video_chunk_description(chunk):
 		"max_tokens": 200,
 	}
 	result = client.chat.completions.create(**params)
-	desc = result.choices[0].message.content
+	if len(result.choices[0].message.content.split('"')) >=2:
+		desc = result.choices[0].message.content.split("\"")[1]
+	else:
+		desc = result.choices[0].message.content
 	return desc
 
 def get_combined_video_description(descs):
@@ -56,20 +59,21 @@ def get_combined_video_description(descs):
 		{
 			"role": "user",
 			"content": [
-				"These are descriptions of the video chunks of a full video.",
-				*map(lambda x: {"text": x}, descs),
-				"Create an overall summary of the video using these descriptions.",
+				"Summarize the following texts into a single paragraph. \n" + "\n".join(descs),
 				"\"<summary of the video>\""
 			],
 		},
 	]
 	params = {
-		"model": "gpt-4-vision-preview",
+		"model": "gpt-3.5-turbo-0125",
 		"messages": PROMPT_MESSAGES,
 		"max_tokens": 200,
 	}
 	result = client.chat.completions.create(**params)
-	desc = result.choices[0].message.content.split("\"")[1]
+	if len(result.choices[0].message.content.split('"')) >=2:
+		desc = result.choices[0].message.content.split("\"")[1]
+	else:
+		desc = result.choices[0].message.content
 	return desc
 
 def delete_video(video_path):
