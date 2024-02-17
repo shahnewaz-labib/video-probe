@@ -1,4 +1,4 @@
-import { writeFile } from "fs/promises"
+import { Env } from "@/config/env"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
@@ -9,14 +9,47 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false })
     }
 
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    // With the file data in the buffer, you can do whatever you want with it.
-    // For this, we'll just write it to the filesystem in a new location
-    const path = `/tmp/${file.name}`
-    await writeFile(path, buffer)
-    console.log(`open ${path} to see the uploaded file`)
+    await uploadToServer(file)
 
     return NextResponse.json({ success: true })
+}
+
+async function uploadToServer(file: File) {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+        const response = await fetch(`${Env.backendUrl}/query/video`, {
+            method: "POST",
+            body: formData,
+        })
+
+        const responseJson = await response.json()
+
+        if (response.ok) {
+            console.log(
+                "File uploaded successfully to external server:",
+                responseJson.message,
+            )
+            return NextResponse.json({
+                success: true,
+                message: responseJson.message,
+            })
+        } else {
+            console.error(
+                "Failed to upload file to external server:",
+                responseJson.message,
+            )
+            return NextResponse.json({
+                success: false,
+                message: responseJson.message,
+            })
+        }
+    } catch (error) {
+        console.error("Error in file upload to external server:", error)
+        return NextResponse.json({
+            success: false,
+            message: "Error in file upload to external server",
+        })
+    }
 }
