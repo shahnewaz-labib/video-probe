@@ -1,7 +1,6 @@
 "use client"
 
 import { getChat } from "@/actions/chat"
-import { complete } from "@/actions/completion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormEvent, useEffect, useState } from "react"
@@ -49,6 +48,7 @@ export default function ChatComponent({ chatId }: { chatId: string }) {
 
     return (
         <div className="flex flex-col gap-y-8 py-8">
+            <p className="ml-auto">{model}</p>
             <div className="flex flex-col">
                 {messages && (
                     <div className="flex flex-col gap-y-3">

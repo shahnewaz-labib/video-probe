@@ -5,6 +5,14 @@ import { auth } from "@clerk/nextjs"
 import { revalidatePath } from "next/cache"
 import { NextRequest } from "next/server"
 
+import { redis } from "@/config/redis"
+import { Ratelimit } from "@upstash/ratelimit"
+
+export const ratelimit = new Ratelimit({
+    redis: redis,
+    limiter: Ratelimit.fixedWindow(15, "1 m")
+})
+
 export async function POST(request: NextRequest) {
     const { userId } = auth()
     if (!userId) return Response.json({}, { status: 401 })

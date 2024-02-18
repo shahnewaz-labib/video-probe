@@ -1,6 +1,6 @@
-import { deleteChat, getChats } from "@/actions/chat"
+import { getChats } from "@/actions/chat"
 import { cn } from "@/lib/utils"
-import { SquarePen, Trash2 } from "lucide-react"
+import { SquarePen } from "lucide-react"
 import Link from "next/link"
 import React from "react"
 import { DeleteChatButton } from "./delete-chat-button"

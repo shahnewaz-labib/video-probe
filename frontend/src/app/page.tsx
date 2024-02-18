@@ -1,15 +1,15 @@
 "use client"
 
-import { createChat } from "@/actions/chat"
 import { AppContext } from "@/components/app-context"
-import ChatComponent from "@/components/chat"
 import FileUpload from "@/components/file-upload"
+import { ModelSelection } from "@/components/model-switcher"
+import { useRouter } from "next/navigation"
 import { useContext, useState } from "react"
 
 export default function Home() {
-    const [chatId, setChatId] = useState<string | false>(false)
     const [isLoading, setIsLoading] = useState(false)
     const { selectedModel } = useContext(AppContext)
+    const router = useRouter()
 
     const onFileSubmit = async (file: File) => {
         if (!file) return
@@ -32,7 +32,7 @@ export default function Home() {
             console.log("res got", res)
 
             if (chat) {
-                setChatId(chat.id)
+                router.push(`/chat/${chat.id}`)
             }
         } catch (e: any) {
             console.error(e)
@@ -41,12 +41,11 @@ export default function Home() {
         }
     }
 
-    if (chatId) {
-        return <ChatComponent chatId={chatId} />
-    }
-
     return (
         <div className="flex flex-col gap-y-8 py-8">
+            <div className="ml-auto">
+                <ModelSelection />
+            </div>
             <div className="flex flex-col">
                 <FileUpload
                     className="flex flex-col gap-y-4"

@@ -15,7 +15,6 @@ export const NavBar = async (props: React.HTMLAttributes<HTMLDivElement>) => {
                 props.className
             )}
         >
-            <ModelSelection />
             <div className="flex-center ml-auto gap-4">
                 <ThemeToggle />
                 {userId && <UserButton />}
