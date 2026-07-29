@@ -1,18 +1,62 @@
 generator client {
-    provider = "prisma-client-js"
+    // v7: prisma-client-js is deprecated. The new provider is Rust-free and
+    // requires an explicit output path — it no longer writes to node_modules.
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
 }
 
 datasource db {
+    // v7: no `url` here. The CLI reads it from prisma.config.ts; the client
+    // gets it from the driver adapter in src/config/prisma.ts.
     provider = "postgresql"
-    url      = env("DATABASE_URL")
-    // url       = env("POSTGRES_PRISMA_URL")
-    // directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Chat {
-    id       String @id @default(uuid())
-    name     String @default("New Chat")
-    model    String @default("gpt-3.5-turbo")
-    userId   String
-    messages Json[]
+    id     String @id @default(uuid())
+    name   String @default("New Chat")
+    userId String
+    model  String @default("gemini-3.6-flash")
+
+    // "upload" (Files API + local copy) or "youtube" (Gemini fetches the URL).
+    source String @default("upload")
+
+    // For uploads: the Files API URI, hard-deleted after 48h.
+    // For YouTube: the canonical watch URL, which never expires.
+    fileUri     String
+    mimeType    String
+    displayName String
+
+    // Both null for YouTube: there is no Files API object to delete, and
+    // nothing expires. A null fileExpiresAt means "never goes read-only".
+    fileName      String? // "files/abc123" — for files.get / files.delete
+    fileExpiresAt DateTime?
+
+    // Interactions API server-side conversation state. Null until the
+    // first turn completes; chained via previous_interaction_id after that.
+    lastInteractionId String?
+
+    createdAt DateTime  @default(now())
+    messages  Message[]
+
+    @@index([userId])
+}
+
+// Display transcript only. This is deliberately NOT the model's context —
+// Gemini holds that server-side — so the video is never re-sent, and the
+// auto-generated ingest prompt can stay hidden from the user.
+model Message {
+    id        String   @id @default(uuid())
+    chatId    String
+    role      String // "user" | "model"
+    content   String
+    createdAt DateTime @default(now())
+
+    // Recorded on model turns so the UI can show what a conversation cost.
+    // Worth surfacing here because the video is re-billed on every turn.
+    inputTokens  Int?
+    outputTokens Int?
+
+    chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+    @@index([chatId, createdAt])
 }

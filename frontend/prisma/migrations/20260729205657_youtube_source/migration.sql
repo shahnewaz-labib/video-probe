@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Chat" ADD COLUMN     "source" TEXT NOT NULL DEFAULT 'upload',
+ALTER COLUMN "fileName" DROP NOT NULL,
+ALTER COLUMN "fileExpiresAt" DROP NOT NULL;
