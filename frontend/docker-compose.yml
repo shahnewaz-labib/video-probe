@@ -1,13 +1,20 @@
-version: "3.9"
 services:
     video_chat:
-        image: postgres:latest
+        # Pinned: postgres:latest silently rolled to 18, which moved the data
+        # directory and refuses to start against a /var/lib/postgresql/data mount.
+        image: postgres:18
         ports:
             - 5434:5432
         env_file:
             - .dockerenv
         volumes:
-            - video_chat_data:/var/lib/postgresql/data
+            # PG18+ wants the parent dir mounted; it places data in a subdirectory.
+            - video_chat_data:/var/lib/postgresql
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+            interval: 3s
+            timeout: 5s
+            retries: 10
 
 volumes:
     video_chat_data:

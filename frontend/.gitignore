@@ -26,6 +26,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
 
 # vercel
@@ -34,3 +35,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma v7 generates outside node_modules
+/src/generated
+
+# locally stored original videos
+/.uploads
+
+# playwright-mcp scratch output
+.playwright-mcp/
