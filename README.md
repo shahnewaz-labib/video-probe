@@ -4,7 +4,7 @@ Upload a video, then ask questions about what's in it — audio and visuals toge
 
 Originally built during the **SUST CSE Carnival 2024 Hackathon**, earning a Top 9 finish among 100+ teams. Rewritten in 2026 on Gemini's native video understanding.
 
-https://github.com/renzhamin/video-chat/assets/57265942/96beb613-ffa3-473e-a6fa-3d87c76bcda0
+https://github.com/user-attachments/assets/0d03d340-c8bb-4bf6-88ec-e100a2eaca9b
 
 Two ways in: **upload a file**, or **paste a YouTube link**. Answers cite `MM:SS`, and clicking a citation seeks the player to that moment.
 
