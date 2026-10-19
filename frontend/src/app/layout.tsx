@@ -1,7 +1,7 @@
 import { ClerkProvider, Show } from "@clerk/nextjs"
 import { shadcn } from "@clerk/ui/themes"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { JetBrains_Mono, Newsreader, Public_Sans } from "next/font/google"
 
 import { NavBar } from "@/components/navbar"
 import { SideBar } from "@/components/sidebar"
@@ -10,7 +10,12 @@ import { Toaster } from "@/components/ui/sonner"
 
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const sans = Public_Sans({ subsets: ["latin"], variable: "--font-public-sans" })
+const serif = Newsreader({ subsets: ["latin"], variable: "--font-newsreader" })
+const mono = JetBrains_Mono({
+    subsets: ["latin"],
+    variable: "--font-jetbrains-mono"
+})
 
 export const metadata: Metadata = {
     title: "Video Probe",
@@ -23,8 +28,14 @@ export default async function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body className={inter.className}>
+        // Font variables go on <html>: Tailwind's --font-* theme vars are
+        // declared on :root and resolve there, not on <body>.
+        <html
+            lang="en"
+            suppressHydrationWarning
+            className={`${sans.variable} ${serif.variable} ${mono.variable}`}
+        >
+            <body className="font-sans">
                 {/* ClerkProvider belongs inside <body>, not wrapping <html>. */}
                 <ClerkProvider appearance={{ theme: shadcn }}>
                     <ThemeProvider
