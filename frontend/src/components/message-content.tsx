@@ -3,13 +3,7 @@
 import { Children, isValidElement, type ReactNode } from "react"
 import { Streamdown } from "streamdown"
 
-/** 0:07, 01:15, or 1:02:33 */
-const TIMESTAMP = /\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g
-
-export function parseTimestamp(label: string): number {
-    const p = label.split(":").map(Number)
-    return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p[0] * 60 + p[1]
-}
+import { parseTimestamp, TIMESTAMP } from "@/lib/timestamps"
 
 /**
  * Rewrites MM:SS into seek buttons. Applied per rendered element via
@@ -46,7 +40,8 @@ function linkify(node: ReactNode, onSeek: (s: number) => void): ReactNode {
         return out
     }
 
-    if (Array.isArray(node)) return Children.map(node, (c) => linkify(c, onSeek))
+    if (Array.isArray(node))
+        return Children.map(node, (c) => linkify(c, onSeek))
     if (isValidElement(node)) return node
     return node
 }
