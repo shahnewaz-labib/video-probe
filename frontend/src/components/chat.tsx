@@ -183,24 +183,36 @@ export default function ChatComponent({
 
     return (
         <div className="mx-auto flex h-full max-w-3xl flex-col">
-            <div className="shrink-0 space-y-4 pt-2 pb-5">
-                <div className="flex items-center gap-3">
+            <div className="mb-4 shrink-0 border-b pt-2 pb-4">
+                <VideoPlayer
+                    ref={playerRef}
+                    chatId={chatId}
+                    displayName={displayName}
+                    source={source}
+                    fileUri={fileUri}
+                >
                     <h1
-                        className="truncate text-base font-medium"
+                        className="line-clamp-2 font-serif text-2xl leading-tight font-medium group-data-[expanded=true]:line-clamp-1 group-data-[expanded=true]:text-xl"
                         title={displayName}
                     >
                         {displayName}
                     </h1>
-                    {expiresAt && (
-                        <ExpiryBadge expiresAt={expiresAt} expired={expired} />
-                    )}
-                    <div className="ml-auto flex shrink-0 items-center gap-3">
+                    <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs group-data-[expanded=true]:mt-0">
+                        <span>
+                            {source === "youtube" ? "YouTube" : "Upload"}
+                        </span>
+                        {expiresAt && (
+                            <ExpiryBadge
+                                expiresAt={expiresAt}
+                                expired={expired}
+                            />
+                        )}
                         {totalTokens > 0 && (
                             <span
-                                className="text-muted-foreground hidden text-xs tabular-nums sm:inline"
+                                className="tabular-nums"
                                 title="Tokens billed for this conversation. The video is re-billed every turn."
                             >
-                                {totalTokens.toLocaleString()} tok
+                                {totalTokens.toLocaleString()} tokens
                             </span>
                         )}
                         <ModelSelector
@@ -213,15 +225,7 @@ export default function ChatComponent({
                             }}
                         />
                     </div>
-                </div>
-
-                <VideoPlayer
-                    ref={playerRef}
-                    chatId={chatId}
-                    displayName={displayName}
-                    source={source}
-                    fileUri={fileUri}
-                />
+                </VideoPlayer>
             </div>
 
             <div
@@ -236,11 +240,12 @@ export default function ChatComponent({
                 >
                     {messages.map((message, i) =>
                         message.role === "user" ? (
-                            <div key={message.id} className="flex justify-end">
-                                <div className="bg-muted max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-[15px] leading-relaxed whitespace-pre-wrap">
-                                    {message.content}
-                                </div>
-                            </div>
+                            <p
+                                key={message.id}
+                                className="text-[15px] leading-relaxed font-semibold whitespace-pre-wrap"
+                            >
+                                {message.content}
+                            </p>
                         ) : (
                             <ModelTurn
                                 key={message.id}
@@ -271,13 +276,15 @@ export default function ChatComponent({
                 ) : (
                     <>
                         {showSuggestions && (
-                            <div className="mb-3 flex flex-wrap gap-2">
+                            <div className="mb-3 flex gap-2 overflow-x-auto">
+                                {/* One scrolling row, not a wrapping block:
+                                    vertical room goes to the conversation. */}
                                 {SUGGESTIONS.map((s) => (
                                     <button
                                         key={s}
                                         type="button"
                                         onClick={() => submit(s)}
-                                        className="border-input text-muted-foreground hover:bg-accent hover:text-foreground rounded-full border px-3 py-1.5 text-xs transition-colors"
+                                        className="border-input text-muted-foreground hover:bg-accent hover:text-foreground shrink-0 rounded-full border px-3 py-1.5 text-xs whitespace-nowrap transition-colors"
                                     >
                                         {s}
                                     </button>
@@ -289,12 +296,16 @@ export default function ChatComponent({
                                 e.preventDefault()
                                 submit(prompt)
                             }}
-                            className="border-input bg-background focus-within:ring-ring/40 flex items-end gap-2 rounded-2xl border p-2 shadow-sm focus-within:ring-2"
+                            className="border-input bg-card focus-within:ring-ring/40 flex items-end gap-2 rounded-2xl border p-2 shadow-sm focus-within:ring-2"
                         >
                             <textarea
                                 value={prompt}
                                 rows={1}
-                                placeholder="Ask about this video…"
+                                placeholder={
+                                    messages.length > 0
+                                        ? "Ask a follow-up…"
+                                        : "Ask about anything said or shown…"
+                                }
                                 onChange={(e) => {
                                     setPrompt(e.currentTarget.value)
                                     e.currentTarget.style.height = "auto"
@@ -319,7 +330,7 @@ export default function ChatComponent({
                                     size="sm"
                                     disabled={!prompt.trim()}
                                 >
-                                    Send
+                                    Ask
                                 </Button>
                             )}
                         </form>

@@ -1,11 +1,12 @@
 "use client"
 
-import { ChevronDown } from "lucide-react"
+import { Maximize2, Minimize2 } from "lucide-react"
 import {
     forwardRef,
     useImperativeHandle,
     useRef,
     useState,
+    type ReactNode,
     type Ref
 } from "react"
 
@@ -16,52 +17,92 @@ import { parseYouTubeId } from "@/lib/youtube"
 export type PlayerHandle = { seek: (seconds: number) => void }
 
 /**
- * Collapsible, and capped well under half the viewport: a permanently
- * pinned player leaves so little room for the transcript that the chat
- * feels like a letterbox.
+ * Starts as a small card beside the title so the conversation gets the
+ * room; seeking to a cited moment enlarges it. The player stays mounted in
+ * both sizes (only CSS changes), so a YouTube embed keeps its state and
+ * its postMessage seek target.
  */
 export function VideoPlayer({
     ref,
     chatId,
     displayName,
     source,
-    fileUri
+    fileUri,
+    children
 }: {
     ref: Ref<PlayerHandle>
     chatId: string
     displayName: string
     source: string
     fileUri: string
+    children?: ReactNode
 }) {
-    const [open, setOpen] = useState(true)
+    const [expanded, setExpanded] = useState(false)
+    const player = useRef<PlayerHandle>(null)
+
+    useImperativeHandle(ref, () => ({
+        seek(seconds) {
+            setExpanded(true)
+            player.current?.seek(seconds)
+        }
+    }))
 
     return (
-        <div className="space-y-1.5">
-            <button
-                type="button"
-                onClick={() => setOpen((o) => !o)}
-                aria-expanded={open}
-                className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
+        <div
+            data-expanded={expanded}
+            className={cn(
+                "group flex flex-col gap-4",
+                !expanded && "sm:flex-row sm:items-center"
+            )}
+        >
+            {/* Order is swapped with CSS, never in the tree: moving the
+                player in the tree would remount the iframe. */}
+            <div
+                className={cn(
+                    "w-full shrink-0",
+                    expanded
+                        ? // 33vh tall at most: on a 800px laptop anything
+                          // bigger leaves the conversation a sliver.
+                          "order-2 mx-auto max-w-[calc(33vh*16/9)]"
+                        : "sm:w-[220px]"
+                )}
             >
-                <ChevronDown
-                    className={cn(
-                        "size-3.5 transition-transform",
-                        !open && "-rotate-90"
-                    )}
-                />
-                {open ? "Hide video" : "Show video"}
-            </button>
-
-            <div className={cn(!open && "hidden")}>
                 {source === "youtube" ? (
-                    <YouTubePlayer ref={ref} url={fileUri} />
+                    <YouTubePlayer ref={player} url={fileUri} />
                 ) : (
                     <UploadedPlayer
-                        ref={ref}
+                        ref={player}
                         chatId={chatId}
                         displayName={displayName}
                     />
                 )}
+            </div>
+            <div className="order-1 flex min-w-0 flex-1 items-start gap-3">
+                <div
+                    className={cn(
+                        "min-w-0 flex-1",
+                        // Expanded, title and meta share one line to give
+                        // the height back to the conversation.
+                        expanded &&
+                            "flex flex-wrap items-center gap-x-4 gap-y-2"
+                    )}
+                >
+                    {children}
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setExpanded((e) => !e)}
+                    aria-expanded={expanded}
+                    aria-label={expanded ? "Shrink video" : "Expand video"}
+                    title={expanded ? "Shrink video" : "Expand video"}
+                    className="text-muted-foreground hover:text-foreground hover:bg-accent shrink-0 rounded-md p-2"
+                >
+                    {expanded ? (
+                        <Minimize2 className="size-4" />
+                    ) : (
+                        <Maximize2 className="size-4" />
+                    )}
+                </button>
             </div>
         </div>
     )
@@ -99,7 +140,7 @@ const UploadedPlayer = forwardRef<
             controls
             preload="metadata"
             onError={() => setFailed(true)}
-            className="bg-muted max-h-[32vh] w-full rounded-xl"
+            className="aspect-video w-full rounded-xl bg-black"
         />
     )
 })
@@ -137,7 +178,7 @@ const YouTubePlayer = forwardRef<PlayerHandle, { url: string }>(
             )
 
         return (
-            <div className="bg-muted mx-auto aspect-video max-h-[32vh] overflow-hidden rounded-xl">
+            <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
                 <iframe
                     ref={frameRef}
                     src={`https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1`}
