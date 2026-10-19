@@ -10,6 +10,7 @@ import { ModelSelector } from "@/components/model-selector"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { VideoModel } from "@/lib/models"
+import { cn } from "@/lib/utils"
 import { parseYouTubeId } from "@/lib/youtube"
 
 type Phase = "idle" | "uploading" | "processing" | "linking"
@@ -25,6 +26,7 @@ export default function UploadForm({
     const [phase, setPhase] = useState<Phase>("idle")
     const [percent, setPercent] = useState(0)
     const [url, setUrl] = useState("")
+    const [tab, setTab] = useState<"link" | "file">("link")
     const router = useRouter()
 
     const busy = phase !== "idle"
@@ -107,17 +109,89 @@ export default function UploadForm({
 
     return (
         <div className="mx-auto flex h-full max-w-2xl flex-col justify-center gap-y-8 py-10">
-            <div className="flex items-center">
-                <div>
-                    <h1 className="text-3xl font-semibold tracking-tight">
-                        Probe a video
-                    </h1>
-                    <p className="text-muted-foreground text-sm">
-                        Ask about anything said or shown. Answers cite the
-                        moment.
-                    </p>
+            <div className="space-y-3">
+                <h1 className="font-serif text-5xl leading-none font-medium tracking-tight">
+                    Ask a video anything.
+                </h1>
+                <p className="text-muted-foreground text-base">
+                    Paste a link or add a file. Answers come back with
+                    timestamps you can click.
+                </p>
+            </div>
+
+            <div className="bg-card space-y-4 rounded-2xl border p-5 shadow-sm">
+                <div
+                    role="tablist"
+                    aria-label="Video source"
+                    className="bg-muted inline-flex gap-1 rounded-lg p-1"
+                >
+                    {(
+                        [
+                            ["link", "YouTube link"],
+                            ["file", "Upload a file"]
+                        ] as const
+                    ).map(([id, label]) => (
+                        <button
+                            key={id}
+                            type="button"
+                            role="tab"
+                            aria-selected={tab === id}
+                            disabled={busy}
+                            onClick={() => setTab(id)}
+                            className={cn(
+                                "h-9 rounded-md px-3.5 text-sm transition-colors disabled:opacity-50",
+                                tab === id
+                                    ? "bg-card font-medium shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
-                <div className="ml-auto">
+
+                {tab === "link" ? (
+                    <form onSubmit={onUrlSubmit} className="space-y-2">
+                        <label
+                            htmlFor="youtube-url"
+                            className="text-sm font-medium"
+                        >
+                            Link
+                        </label>
+                        <div className="flex gap-2">
+                            <Input
+                                id="youtube-url"
+                                type="url"
+                                inputMode="url"
+                                value={url}
+                                disabled={busy}
+                                placeholder="https://www.youtube.com/watch?v=…"
+                                onChange={(e) => setUrl(e.currentTarget.value)}
+                                className="h-11"
+                            />
+                            <Button
+                                type="submit"
+                                disabled={!urlIsValid || busy}
+                                className="h-11 px-5"
+                            >
+                                {phase === "linking" ? "Starting…" : "Start"}
+                            </Button>
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                            Public videos only. Links don’t expire. Longer
+                            videos cost more per question.
+                        </p>
+                    </form>
+                ) : (
+                    <FileUpload
+                        className="flex flex-col gap-y-4"
+                        onFileSubmit={onFileSubmit}
+                        disabled={busy}
+                    />
+                )}
+
+                <div className="text-muted-foreground flex items-center gap-2 border-t pt-3 text-xs">
+                    <span>Model</span>
                     <ModelSelector
                         models={models}
                         value={model}
@@ -126,42 +200,6 @@ export default function UploadForm({
                     />
                 </div>
             </div>
-
-            <form onSubmit={onUrlSubmit} className="flex gap-2">
-                <Input
-                    type="url"
-                    inputMode="url"
-                    value={url}
-                    disabled={busy}
-                    placeholder="Paste a YouTube link…"
-                    onChange={(e) => setUrl(e.currentTarget.value)}
-                />
-                <Button
-                    type="submit"
-                    variant="secondary"
-                    disabled={!urlIsValid || busy}
-                >
-                    {phase === "linking" ? "Adding…" : "Add"}
-                </Button>
-            </form>
-            <p className="text-muted-foreground -mt-4 text-xs">
-                Public videos only. Nothing is downloaded — Gemini reads the
-                link directly, so there’s no upload and no 48-hour expiry.
-                Long videos cost more, since the video is re-billed on every
-                question.
-            </p>
-
-            <div className="flex items-center gap-3">
-                <span className="bg-border h-px flex-1" />
-                <span className="text-muted-foreground text-xs">or</span>
-                <span className="bg-border h-px flex-1" />
-            </div>
-
-            <FileUpload
-                className="flex flex-col gap-y-4"
-                onFileSubmit={onFileSubmit}
-                disabled={busy}
-            />
 
             {busy && (
                 <div className="flex flex-col items-center gap-3 pt-2">
