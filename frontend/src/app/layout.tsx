@@ -47,11 +47,19 @@ export default async function RootLayout({
                         <div className="flex h-dvh overflow-hidden">
                             {/* No chat list for signed-out visitors. */}
                             <Show when="signed-in">
-                                <SideBar className="bg-muted/30 hidden w-72 shrink-0 border-r lg:flex" />
+                                <SideBar className="hidden w-64 shrink-0 border-r lg:flex" />
                             </Show>
                             <div className="flex min-w-0 flex-1 flex-col">
-                                <NavBar className="shrink-0 px-6 lg:px-10" />
-                                <main className="min-h-0 flex-1 px-6 lg:px-10">
+                                <Show when="signed-out">
+                                    <NavBar className="shrink-0 px-6 lg:px-10" />
+                                </Show>
+                                {/* Signed in, the sidebar footer carries the
+                                    theme toggle and user menu; the bar is only
+                                    needed while the sidebar is hidden. */}
+                                <Show when="signed-in">
+                                    <NavBar className="shrink-0 px-6 lg:hidden" />
+                                </Show>
+                                <main className="min-h-0 flex-1 px-6 lg:px-10 lg:pt-4">
                                     {children}
                                 </main>
                             </div>

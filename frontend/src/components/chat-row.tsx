@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils"
 export function ChatRow({
     id,
     name,
-    displayName
+    displayName,
+    meta
 }: {
     id: string
     name: string
     displayName: string
+    meta: string
 }) {
     const pathname = usePathname()
     const router = useRouter()
@@ -44,7 +46,7 @@ export function ChatRow({
     return (
         <div
             className={cn(
-                "group flex items-center gap-1 rounded-md px-2 py-1.5 text-sm",
+                "group flex items-center gap-1 rounded-lg px-2 py-2 text-sm",
                 isActive ? "bg-accent font-medium" : "hover:bg-accent/60",
                 isPending && "opacity-50"
             )}
@@ -52,9 +54,12 @@ export function ChatRow({
             <Link
                 href={`/chat/${id}`}
                 title={displayName}
-                className="min-w-0 flex-1 truncate"
+                className="flex min-w-0 flex-1 flex-col gap-0.5"
             >
-                {name}
+                <span className="truncate">{name}</span>
+                <span className="text-muted-foreground truncate text-xs font-normal">
+                    {meta}
+                </span>
             </Link>
             <button
                 type="button"
